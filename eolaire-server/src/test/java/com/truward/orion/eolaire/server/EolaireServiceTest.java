@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/spring/EolaireServiceTest-context.xml")
@@ -25,5 +26,10 @@ public final class EolaireServiceTest {
     final EolaireModel.Item item = eolaireService.getItemById(151);
 
     assertEquals(151, item.getId());
+  }
+
+  @Test
+  public void shouldNotGetItemProfile() {
+    assertTrue(eolaireService.getItemProfile(151).isEmpty());
   }
 }
