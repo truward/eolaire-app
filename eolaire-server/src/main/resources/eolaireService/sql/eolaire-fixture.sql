@@ -21,7 +21,7 @@ INSERT INTO item_relation (lhs, rhs, type_id) VALUES (1100, 151, 2);
 
 -- Item Profile
 INSERT INTO item_profile (item_id, description, date_created, date_updated, flags, metadata)
-  VALUES (1000, 'Fine Author', '2015-05-27 21:42:54', '2015-05-28 11:17:05', 1, '');
+  VALUES (1000, 'Fine Author', '2015-05-27 21:42:54 UTC', '2015-05-28 11:17:05 UTC', 1, '');
 
 COMMIT;
 

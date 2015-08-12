@@ -40,8 +40,8 @@ public final class EolaireServiceTest {
     assertEquals(Collections.singletonList(EolaireModel.ItemProfile.newBuilder()
             .setItemId(1000L)
             .setDescription("Fine Author")
-            .setCreated(1432788174000L)
-            .setUpdated(1432837025000L)
+            .setCreated(1432762974000L)
+            .setUpdated(1432811825000L)
             .setFlags(1)
             .setMetadata(EolaireModel.Metadata.newBuilder().build())
             .build()),
