@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -31,5 +33,18 @@ public final class EolaireServiceTest {
   @Test
   public void shouldNotGetItemProfile() {
     assertTrue(eolaireService.getItemProfile(151).isEmpty());
+  }
+
+  @Test
+  public void shouldGetItemProfile() {
+    assertEquals(Collections.singletonList(EolaireModel.ItemProfile.newBuilder()
+            .setItemId(1000L)
+            .setDescription("Fine Author")
+            .setCreated(1432788174000L)
+            .setUpdated(1432837025000L)
+            .setFlags(1)
+            .setMetadata(EolaireModel.Metadata.newBuilder().build())
+            .build()),
+        eolaireService.getItemProfile(1000L));
   }
 }
