@@ -1,8 +1,10 @@
 package com.truward.orion.eolaire.server.controller;
 
+import com.truward.brikar.server.controller.AbstractRestController;
 import com.truward.orion.eolaire.model.EolaireModel;
 import com.truward.orion.eolaire.model.EolaireRestService;
 import com.truward.orion.eolaire.server.logic.EolaireService;
+import com.truward.orion.eolaire.server.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +22,7 @@ import java.util.Objects;
  */
 @Controller
 @RequestMapping("/rest/eolaire")
-public final class EolaireRestController implements EolaireRestService {
+public final class EolaireRestController extends AbstractRestController implements EolaireRestService {
   private final EolaireService.Contract eolaireService;
 
   @Autowired
@@ -58,12 +60,53 @@ public final class EolaireRestController implements EolaireRestService {
 
   @Override
   public EolaireModel.GetEntityTypeResponse getEntityTypeByName(@RequestParam("name") String name) {
-    throw new UnsupportedOperationException();
+    final EolaireModel.GetEntityTypeResponse.Builder builder = EolaireModel.GetEntityTypeResponse.newBuilder();
+
+    final List<EolaireModel.EntityType> types = eolaireService.getEntityTypeByName(name);
+    if (!types.isEmpty()) {
+      assert types.size() == 1;
+      builder.setType(types.get(0));
+    }
+
+    return builder.build();
   }
 
   @Override
   public EolaireModel.GetAllEntityTypesResponse getAllEntities(@RequestBody EolaireModel.GetAllEntityTypesRequest request) {
-    throw new UnsupportedOperationException();
+    // get size
+    final int size = request.getSize();
+    if (size > Constants.MAX_SIZE) {
+      throw new IllegalArgumentException("Size value exceeded");
+    }
+
+    if (size < 0) {
+      throw new IllegalArgumentException("Size can't be negative");
+    }
+
+    // convert offset token
+    Long startEntityId = null;
+    if (request.hasOffsetToken()) {
+      try {
+        startEntityId = Long.parseLong(request.getOffsetToken(), 16);
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid offsetToken", e);
+      }
+    }
+
+    // prepare response
+    final EolaireModel.GetAllEntityTypesResponse.Builder builder = EolaireModel.GetAllEntityTypesResponse.newBuilder();
+    if (size == 0) {
+      return builder.setOffsetToken(request.getOffsetToken()).build();
+    }
+
+    // prepare response builder
+    final List<EolaireModel.EntityType> entityTypes = eolaireService.getEntityTypesOrderedById(startEntityId, size);
+    builder.addAllType(entityTypes);
+    if (entityTypes.size() == size) {
+      builder.setOffsetToken(Long.toHexString(entityTypes.get(size - 1).getId()));
+    }
+
+    return builder.build();
   }
 
   @Override

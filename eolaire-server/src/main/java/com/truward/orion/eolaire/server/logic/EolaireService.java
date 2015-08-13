@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -23,6 +24,12 @@ public final class EolaireService {
 
     @Nonnull
     List<EolaireModel.ItemProfile> getItemProfile(long itemId);
+
+    @Nonnull
+    List<EolaireModel.EntityType> getEntityTypeByName(@Nonnull String name);
+
+    @Nonnull
+    List<EolaireModel.EntityType> getEntityTypesOrderedById(@Nullable Long startEntityId, int size);
   }
 
   @Transactional
@@ -47,39 +54,71 @@ public final class EolaireService {
           "WHERE item_id=?", new ItemProfileRowMapper(), itemId);
     }
 
-    private static final class ItemRowMapper implements RowMapper<EolaireModel.Item> {
-
-      @Override
-      public EolaireModel.Item mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return EolaireModel.Item.newBuilder()
-            .setId(rs.getLong("id"))
-            .setName(rs.getString("name"))
-            .setItemTypeId(rs.getLong("type_id"))
-            .build();
-      }
+    @Nonnull
+    @Override
+    public List<EolaireModel.EntityType> getEntityTypeByName(@Nonnull String name) {
+      return db.query("SELECT id, name FROM entity_type WHERE name=?", new EntityTypeRowMapper(), name);
     }
 
-    private static final class ItemProfileRowMapper implements RowMapper<EolaireModel.ItemProfile> {
-
-      @Override
-      public EolaireModel.ItemProfile mapRow(ResultSet rs, int rowNum) throws SQLException {
-        final byte[] metadataBytes = rs.getBytes("metadata");
-        final EolaireModel.Metadata metadata;
-        try {
-          metadata = EolaireModel.Metadata.parseFrom(metadataBytes);
-        } catch (InvalidProtocolBufferException e) {
-          throw new SQLException("Unable to deserialize metadata", e);
-        }
-
-        return EolaireModel.ItemProfile.newBuilder()
-            .setItemId(rs.getLong("item_id"))
-            .setDescription(rs.getString("description"))
-            .setCreated(rs.getTimestamp("date_created").getTime())
-            .setUpdated(rs.getTimestamp("date_updated").getTime())
-            .setFlags(rs.getLong("flags"))
-            .setMetadata(metadata)
-            .build();
+    @Nonnull
+    @Override
+    public List<EolaireModel.EntityType> getEntityTypesOrderedById(@Nullable Long startEntityId, int size) {
+      if (startEntityId == null) {
+        return db.query("SELECT id, name FROM entity_type ORDER BY id LIMIT ?", new EntityTypeRowMapper(), size);
       }
+
+      return db.query("SELECT id, name FROM entity_type WHERE id > ? ORDER BY id LIMIT ?", new EntityTypeRowMapper(),
+          startEntityId, size);
+    }
+  }
+
+  //
+  // Mappers
+  //
+
+  private static final class EntityTypeRowMapper implements RowMapper<EolaireModel.EntityType> {
+
+    @Override
+    public EolaireModel.EntityType mapRow(ResultSet rs, int rowNum) throws SQLException {
+      return EolaireModel.EntityType.newBuilder()
+          .setId(rs.getLong("id"))
+          .setName(rs.getString("name"))
+          .build();
+    }
+  }
+
+  private static final class ItemRowMapper implements RowMapper<EolaireModel.Item> {
+
+    @Override
+    public EolaireModel.Item mapRow(ResultSet rs, int rowNum) throws SQLException {
+      return EolaireModel.Item.newBuilder()
+          .setId(rs.getLong("id"))
+          .setName(rs.getString("name"))
+          .setItemTypeId(rs.getLong("type_id"))
+          .build();
+    }
+  }
+
+  private static final class ItemProfileRowMapper implements RowMapper<EolaireModel.ItemProfile> {
+
+    @Override
+    public EolaireModel.ItemProfile mapRow(ResultSet rs, int rowNum) throws SQLException {
+      final byte[] metadataBytes = rs.getBytes("metadata");
+      final EolaireModel.Metadata metadata;
+      try {
+        metadata = EolaireModel.Metadata.parseFrom(metadataBytes);
+      } catch (InvalidProtocolBufferException e) {
+        throw new SQLException("Unable to deserialize metadata", e);
+      }
+
+      return EolaireModel.ItemProfile.newBuilder()
+          .setItemId(rs.getLong("item_id"))
+          .setDescription(rs.getString("description"))
+          .setCreated(rs.getTimestamp("date_created").getTime())
+          .setUpdated(rs.getTimestamp("date_updated").getTime())
+          .setFlags(rs.getLong("flags"))
+          .setMetadata(metadata)
+          .build();
     }
   }
 

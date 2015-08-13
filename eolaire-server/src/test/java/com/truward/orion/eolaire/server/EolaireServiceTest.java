@@ -10,7 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -19,6 +22,9 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(locations = "/spring/EolaireServiceTest-context.xml")
 @Transactional
 public final class EolaireServiceTest {
+
+  private final List<EolaireModel.EntityType> actualEntityTypes = Collections.unmodifiableList(Arrays.asList(
+      entityType(1, "author"), entityType(2, "language"), entityType(3, "person"), entityType(5, "book")));
 
   @Resource
   private EolaireService.Contract eolaireService;
@@ -46,5 +52,46 @@ public final class EolaireServiceTest {
             .setMetadata(EolaireModel.Metadata.newBuilder().build())
             .build()),
         eolaireService.getItemProfile(1000L));
+  }
+
+  @Test
+  public void shouldGetEntityTypeByName() {
+    assertEquals(Collections.singletonList(entityType(1, "author")), eolaireService.getEntityTypeByName("author"));
+  }
+
+  @Test
+  public void shouldGetNoEntityTypesByNonExistentName() {
+    assertTrue(eolaireService.getEntityTypeByName("unknownName").isEmpty());
+  }
+
+  @Test
+  public void shouldGetAllEntityTypesInOneTurn() {
+    assertEquals(actualEntityTypes, eolaireService.getEntityTypesOrderedById(null, 10));
+  }
+
+  @Test
+  public void shouldGetEntityTypesOneByOne() {
+    final List<EolaireModel.EntityType> allTypes = new ArrayList<>();
+    Long lastEntityId = null;
+    do {
+      final List<EolaireModel.EntityType> types = eolaireService.getEntityTypesOrderedById(lastEntityId, 1);
+      allTypes.addAll(types);
+
+      if (!types.isEmpty()) {
+        lastEntityId = types.get(types.size() - 1).getId();
+      } else {
+        lastEntityId = null;
+      }
+    } while (lastEntityId != null);
+
+    assertEquals(actualEntityTypes, allTypes);
+  }
+
+  //
+  // Private
+  //
+
+  private static EolaireModel.EntityType entityType(long id, String name) {
+    return EolaireModel.EntityType.newBuilder().setId(id).setName(name).build();
   }
 }
