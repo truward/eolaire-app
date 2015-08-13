@@ -87,6 +87,24 @@ public final class EolaireServiceTest {
     assertEquals(actualEntityTypes, allTypes);
   }
 
+  @Test
+  public void shouldGetItemIdsByRelationUsingItemId() {
+    final List<Long> ids = eolaireService.getItemIdsByRelation(1000L, null, null, null, 10);
+    assertEquals(Collections.singletonList(1100L), ids);
+  }
+
+  @Test
+  public void shouldGetItemIdsByRelationUsingItemIdAndRelationTypeId() {
+    final List<Long> ids = eolaireService.getItemIdsByRelation(1000L, 1L, null, null, 10);
+    assertEquals(Collections.singletonList(1100L), ids);
+  }
+
+  @Test
+  public void shouldGetItemIdsByRelationUsingItemIdAndRelationTypeIdAndRelatedItemTypeId() {
+    final List<Long> ids = eolaireService.getItemIdsByRelation(1000L, 1L, 5L, null, 10);
+    assertEquals(Collections.singletonList(1100L), ids);
+  }
+
   //
   // Private
   //

@@ -30,6 +30,16 @@ public final class EolaireService {
 
     @Nonnull
     List<EolaireModel.EntityType> getEntityTypesOrderedById(@Nullable Long startEntityId, int size);
+
+    @Nonnull
+    List<Long> getItemIdsByType(long itemTypeId, @Nullable Long startEntityId, int size);
+
+    @Nonnull
+    List<Long> getItemIdsByRelation(long itemId,
+                                    @Nullable Long relationTypeId,
+                                    @Nullable Long relatedItemTypeId,
+                                    @Nullable Long startEntityId,
+                                    int size);
   }
 
   @Transactional
@@ -69,6 +79,37 @@ public final class EolaireService {
 
       return db.query("SELECT id, name FROM entity_type WHERE id > ? ORDER BY id LIMIT ?", new EntityTypeRowMapper(),
           startEntityId, size);
+    }
+
+    @Nonnull
+    @Override
+    public List<Long> getItemIdsByType(long itemTypeId, @Nullable Long startEntityId, int size) {
+      return db.queryForList("SELECT id FROM item WHERE type_id=? AND ((? IS NULL) OR (id > ?)) ORDER BY id LIMIT ?",
+          Long.class, itemTypeId, startEntityId, startEntityId, size);
+    }
+
+    @Nonnull
+    @Override
+    public List<Long> getItemIdsByRelation(long itemId,
+                                           @Nullable Long relationTypeId,
+                                           @Nullable Long relatedItemTypeId,
+                                           @Nullable Long startEntityId,
+                                           int size) {
+      return db.queryForList("SELECT l.id FROM item AS l\n" +
+              "INNER JOIN item_relation AS ir ON ir.lhs=l.id\n" +
+              "INNER JOIN item AS r ON ir.rhs=r.id\n" +
+              "WHERE r.id=? " +
+              "AND ((? IS NULL) OR (ir.type_id=?)) " +
+              "AND ((? IS NULL) OR (l.type_id=?)) " +
+              "AND ((? IS NULL) OR (l.id > ?)) " +
+              "ORDER BY id " +
+              "LIMIT ?",
+          Long.class,
+          itemId,
+          relationTypeId, relationTypeId,
+          relatedItemTypeId, relatedItemTypeId,
+          startEntityId, startEntityId,
+          size);
     }
   }
 
