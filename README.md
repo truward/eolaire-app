@@ -1,6 +1,20 @@
 
 ## Samples
 
+### Launch in Dev Mode
+
+CLI args:
+
+```
+--dev-disable-simple-security --dev-override-static-path /path/to/web/dir
+```
+
+Sys Properties:
+
+```
+-Dbrikar.settings.gracefulShutdownMillis=100 -Dbrikar.settings.port=9090
+```
+
 ### Health Check
 
 ```
