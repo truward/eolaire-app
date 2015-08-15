@@ -1,16 +1,22 @@
 var React = require('React');
 var Router = require('director').Router;
-var DEFAULT_LIMIT = require("../service/ajax-eolaire-service.js").DEFAULT_LIMIT;
 
-var ItemListPage = require('./item/item-list-page.js');
+// widgets
+
+var EntityListPage = require('./entity/entity-list-page.js');
+var ItemByTypeListPage = require('./item/item-by-type-list.js');
 var AboutPage = require('./about/about-page.js');
 
+// navigation IDs
+
 var Nav = {
-  UNDEFINED: "undefined",
+  UNDEFINED: "UNDEFINED",
 
-  ITEM_LIST: "items",
+  ITEM_BY_TYPE_LIST: "ITEM_BY_TYPE_LIST",
 
-  ABOUT: "about"
+  ENTITY_LIST: "ENTITY_LIST",
+
+  ABOUT: "ABOUT"
 };
 
 function setStartTitle(pageNamePart) {
@@ -39,21 +45,33 @@ module.exports = React.createClass({
       nowShowing: Nav.UNDEFINED, // current widget
 
       // controller variables
-      // ...
+
+      type: undefined,
+      offsetToken: undefined,
+      limit: undefined
     };
   },
 
   componentDidMount: function () {
-    var gotoItemsPage = this.setState.bind(this, {nowShowing: Nav.ITEM_LIST});
+    var gotoEntitiesPage = this.setState.bind(this, {nowShowing: Nav.ENTITY_LIST});
+
+    var gotoItemByTypePage = function (type, limit) {
+      this.setState({
+        nowShowing: Nav.ITEM_BY_TYPE_LIST,
+        type: parseInt(type),
+        limit: parseInt(limit)
+      });
+    }.bind(this);
 
     var gotoAboutPage = this.setState.bind(this, {nowShowing: Nav.ABOUT});
 
     var router = Router({
-      '/items': gotoItemsPage,
+      '/entities': gotoEntitiesPage,
+      '/item/type/:type/limit/:limit': gotoItemByTypePage,
       '/about': gotoAboutPage
     });
 
-    router.init('/items');
+    router.init('/entities');
   },
 
   render: function() {
@@ -62,9 +80,18 @@ module.exports = React.createClass({
         setStartTitle("Main");
         return (<div/>);
 
-      case Nav.Items:
+      case Nav.ENTITY_LIST:
+        setStartTitle("Entities");
+        return (<EntityListPage services={this.state.services}/>);
+
+      case Nav.ITEM_BY_TYPE_LIST:
         setStartTitle("Items");
-        return (<ItemListPage services={this.state.services}/>);
+        return (<ItemByTypeListPage
+                  services={this.state.services}
+                  type={this.state.type}
+                  offsetToken={this.state.offsetToken}
+                  limit={this.state.limit}
+                  />);
 
       case Nav.ABOUT:
         setStartTitle("About");
@@ -72,7 +99,7 @@ module.exports = React.createClass({
 
       default:
         setStartTitle();
-        return (<ItemListPage services={this.state.services}/>);
+        return (<EntityListPage services={this.state.services}/>);
     }
   }
 });

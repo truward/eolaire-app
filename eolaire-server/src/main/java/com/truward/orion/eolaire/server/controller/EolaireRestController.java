@@ -38,8 +38,8 @@ public final class EolaireRestController extends AbstractRestController implemen
   @Override
   public EolaireModel.GetItemsResponse getItemsByIds(@RequestBody EolaireModel.GetItemsRequest request) {
     final EolaireModel.GetItemsResponse.Builder builder = EolaireModel.GetItemsResponse.newBuilder();
-    for (final long id : request.getItemIdList()) {
-      builder.addItem(eolaireService.getItemById(id));
+    for (final long id : request.getItemIdsList()) {
+      builder.addItems(eolaireService.getItemById(id));
     }
     return builder.build();
   }
@@ -73,22 +73,25 @@ public final class EolaireRestController extends AbstractRestController implemen
 
   @Override
   public EolaireModel.GetAllEntityTypesResponse getAllEntities(@RequestBody EolaireModel.GetAllEntityTypesRequest request) {
-    final int size = ListQueryUtil.checkSize(request.getSize());
+    final int limit = ListQueryUtil.checkLimit(request.getLimit());
 
     // convert offset token
     final Long startEntityId = request.hasOffsetToken() ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
 
     // prepare response builder
     final EolaireModel.GetAllEntityTypesResponse.Builder builder = EolaireModel.GetAllEntityTypesResponse.newBuilder();
-    if (size == 0) {
-      return builder.setOffsetToken(request.getOffsetToken()).build();
+    if (limit == 0) {
+      if (request.hasOffsetToken()) {
+        builder.setOffsetToken(request.getOffsetToken());
+      }
+      return builder.build();
     }
 
     // fetch result list
-    final List<EolaireModel.EntityType> entityTypes = eolaireService.getEntityTypesOrderedById(startEntityId, size);
-    builder.addAllType(entityTypes);
-    if (entityTypes.size() == size) {
-      builder.setOffsetToken(ListQueryUtil.toOffsetToken(entityTypes.get(size - 1).getId()));
+    final List<EolaireModel.EntityType> entityTypes = eolaireService.getEntityTypesOrderedById(startEntityId, limit);
+    builder.addAllTypes(entityTypes);
+    if (entityTypes.size() == limit) {
+      builder.setOffsetToken(ListQueryUtil.toOffsetToken(entityTypes.get(limit - 1).getId()));
     }
 
     return builder.build();
@@ -96,22 +99,25 @@ public final class EolaireRestController extends AbstractRestController implemen
 
   @Override
   public EolaireModel.GetItemByTypeResponse getItemByType(@RequestBody EolaireModel.GetItemByTypeRequest request) {
-    final int size = ListQueryUtil.checkSize(request.getSize());
+    final int limit = ListQueryUtil.checkLimit(request.getLimit());
 
     // prepare response
     final EolaireModel.GetItemByTypeResponse.Builder builder = EolaireModel.GetItemByTypeResponse.newBuilder();
-    if (size == 0) {
-      return builder.setOffsetToken(request.getOffsetToken()).build();
+    if (limit == 0) {
+      if (request.hasOffsetToken()) {
+        builder.setOffsetToken(request.getOffsetToken());
+      }
+      return builder.build();
     }
 
     // convert offset token
     final Long startEntityId = request.hasOffsetToken() ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
 
     // fetch result list
-    final List<Long> itemIds = eolaireService.getItemIdsByType(request.getItemTypeId(), startEntityId, size);
-    builder.addAllItemId(itemIds);
-    if (itemIds.size() == size) {
-      builder.setOffsetToken(ListQueryUtil.toOffsetToken(itemIds.get(size - 1)));
+    final List<Long> itemIds = eolaireService.getItemIdsByType(request.getItemTypeId(), startEntityId, limit);
+    builder.addAllItemIds(itemIds);
+    if (itemIds.size() == limit) {
+      builder.setOffsetToken(ListQueryUtil.toOffsetToken(itemIds.get(limit - 1)));
     }
 
     return builder.build();
@@ -119,12 +125,15 @@ public final class EolaireRestController extends AbstractRestController implemen
 
   @Override
   public EolaireModel.GetItemByRelationResponse getItemByRelation(@RequestBody EolaireModel.GetItemByRelationRequest request) {
-    final int size = ListQueryUtil.checkSize(request.getSize());
+    final int limit = ListQueryUtil.checkLimit(request.getLimit());
 
     // prepare response
     final EolaireModel.GetItemByRelationResponse.Builder builder = EolaireModel.GetItemByRelationResponse.newBuilder();
-    if (size == 0) {
-      return builder.setOffsetToken(request.getOffsetToken()).build();
+    if (limit == 0) {
+      if (request.hasOffsetToken()) {
+        builder.setOffsetToken(request.getOffsetToken());
+      }
+      return builder.build();
     }
 
     // convert offset token
@@ -134,11 +143,11 @@ public final class EolaireRestController extends AbstractRestController implemen
 
     // fetch result list
     final List<Long> itemIds = eolaireService.getItemIdsByRelation(request.getItemId(), relationTypeId,
-        relatedItemTypeId, startEntityId, size);
+        relatedItemTypeId, startEntityId, limit);
 
-    builder.addAllItemId(itemIds);
-    if (itemIds.size() == size) {
-      builder.setOffsetToken(ListQueryUtil.toOffsetToken(itemIds.get(size - 1)));
+    builder.addAllItemIds(itemIds);
+    if (itemIds.size() == limit) {
+      builder.setOffsetToken(ListQueryUtil.toOffsetToken(itemIds.get(limit - 1)));
     }
 
     return builder.build();

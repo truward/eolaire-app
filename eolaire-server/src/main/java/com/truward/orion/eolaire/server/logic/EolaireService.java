@@ -29,17 +29,17 @@ public final class EolaireService {
     List<EolaireModel.EntityType> getEntityTypeByName(@Nonnull String name);
 
     @Nonnull
-    List<EolaireModel.EntityType> getEntityTypesOrderedById(@Nullable Long startEntityId, int size);
+    List<EolaireModel.EntityType> getEntityTypesOrderedById(@Nullable Long startEntityId, int limit);
 
     @Nonnull
-    List<Long> getItemIdsByType(long itemTypeId, @Nullable Long startEntityId, int size);
+    List<Long> getItemIdsByType(long itemTypeId, @Nullable Long startEntityId, int limit);
 
     @Nonnull
     List<Long> getItemIdsByRelation(long itemId,
                                     @Nullable Long relationTypeId,
                                     @Nullable Long relatedItemTypeId,
                                     @Nullable Long startEntityId,
-                                    int size);
+                                    int limit);
   }
 
   @Transactional
@@ -72,20 +72,20 @@ public final class EolaireService {
 
     @Nonnull
     @Override
-    public List<EolaireModel.EntityType> getEntityTypesOrderedById(@Nullable Long startEntityId, int size) {
+    public List<EolaireModel.EntityType> getEntityTypesOrderedById(@Nullable Long startEntityId, int limit) {
       if (startEntityId == null) {
-        return db.query("SELECT id, name FROM entity_type ORDER BY id LIMIT ?", new EntityTypeRowMapper(), size);
+        return db.query("SELECT id, name FROM entity_type ORDER BY id LIMIT ?", new EntityTypeRowMapper(), limit);
       }
 
       return db.query("SELECT id, name FROM entity_type WHERE id > ? ORDER BY id LIMIT ?", new EntityTypeRowMapper(),
-          startEntityId, size);
+          startEntityId, limit);
     }
 
     @Nonnull
     @Override
-    public List<Long> getItemIdsByType(long itemTypeId, @Nullable Long startEntityId, int size) {
+    public List<Long> getItemIdsByType(long itemTypeId, @Nullable Long startEntityId, int limit) {
       return db.queryForList("SELECT id FROM item WHERE type_id=? AND ((? IS NULL) OR (id > ?)) ORDER BY id LIMIT ?",
-          Long.class, itemTypeId, startEntityId, startEntityId, size);
+          Long.class, itemTypeId, startEntityId, startEntityId, limit);
     }
 
     @Nonnull
@@ -94,7 +94,7 @@ public final class EolaireService {
                                            @Nullable Long relationTypeId,
                                            @Nullable Long relatedItemTypeId,
                                            @Nullable Long startEntityId,
-                                           int size) {
+                                           int limit) {
       return db.queryForList("SELECT l.id FROM item AS l\n" +
               "INNER JOIN item_relation AS ir ON ir.lhs=l.id\n" +
               "INNER JOIN item AS r ON ir.rhs=r.id\n" +
@@ -109,7 +109,7 @@ public final class EolaireService {
           relationTypeId, relationTypeId,
           relatedItemTypeId, relatedItemTypeId,
           startEntityId, startEntityId,
-          size);
+          limit);
     }
   }
 

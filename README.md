@@ -57,3 +57,10 @@ Then you can connect to it using h2 shell (remove rlwrap if you don't want to us
 rlwrap java -cp ~/.m2/repository/com/h2database/h2/1.4.183/h2-1.4.183.jar org.h2.tools.Shell -url jdbc:h2:/tmp/eolairedb -user sa
 ```
 
+### OS X Grunt Build Failure
+
+Increase ``ulimit`` if you get ``>>> Error: EMFILE ...``.
+
+```
+ulimit -n 512
+```

@@ -2,29 +2,28 @@ var React = require('React');
 
 var Dispatcher = require('./view/dispatcher.js');
 var EolaireService = require('./service/ajax-eolaire-service.js').EolaireService;
-var installGlobalAjaxErrorHandler = require('./util/rsvp-ajax.js').installGlobalErrorHandler;
-var installGlobalCacheEventHandler = require('./util/rsvp-cache.js').installGlobalCacheEventHandler;
-var ajax = require('./util/rsvp-ajax.js');
 var parseQueryString = require('./util/uri.js').parseQueryString;
+var cache = require('rsvp-cache');
+var ajax = require('rsvp-ajax');
 
 
 function installDebugHooks() {
   console.log("Installing Debug Hooks...");
 
   // install AJAX interceptor
-  installGlobalAjaxErrorHandler("eolaireServiceAjaxHandler", function (xmlHttpRequest) {
+  ajax.on(ajax.XHR_ERROR, function (xmlHttpRequest) {
     window["lastErrorXhr"] = xmlHttpRequest;
-    console.error("AJAX error, status:", xmlHttpRequest.status, xmlHttpRequest.statusText,
+    console.error("AJAX error; status:", xmlHttpRequest.status, xmlHttpRequest.statusText,
       "responseURL:", xmlHttpRequest.responseURL, "requestId:", xmlHttpRequest.getResponseHeader("X-Rid"));
   });
 
   // install cache event handlers
-  installGlobalCacheEventHandler("eolaireServiceCacheEventHandler", function (cacheHit, key, value) {
-    if (cacheHit) {
-      console.log("cacheHit", key, "value", value);
-    } else {
-      console.log("cacheMiss", key);
-    }
+  cache.on(cache.CACHE_HIT, function (d) {
+    console.log("cacheHit, key:", d.key, ", value:", d.value);
+  });
+
+  cache.on(cache.CACHE_MISS, function (d) {
+    console.log("cacheMiss, key:", d.key);
   });
 }
 

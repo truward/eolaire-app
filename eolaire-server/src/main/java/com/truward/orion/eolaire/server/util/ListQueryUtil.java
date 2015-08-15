@@ -26,15 +26,15 @@ public final class ListQueryUtil {
     return Long.toHexString(id);
   }
 
-  public static int checkSize(int size) {
-    if (size > MAX_SIZE) {
+  public static int checkLimit(int limit) {
+    if (limit > MAX_SIZE) {
       throw new IllegalArgumentException("Size exceeds maximum: " + MAX_SIZE);
     }
 
-    if (size < 0) {
+    if (limit < 0) {
       throw new IllegalArgumentException("Size can't be negative");
     }
 
-    return size;
+    return limit;
   }
 }
