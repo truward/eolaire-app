@@ -42,7 +42,7 @@ CREATE TABLE item_profile (
 --
 
 CREATE SEQUENCE seq_entity_type       START WITH 100;
-CREATE SEQUENCE seq_item              START WITH 100000;
+CREATE SEQUENCE seq_item              START WITH 1000;
 
 
 --
