@@ -49,7 +49,7 @@ CREATE SEQUENCE seq_item              START WITH 1000;
 -- Indexes
 --
 
-CREATE UNIQUE INDEX idx_item_typename ON item (type_id, name);
+CREATE INDEX idx_item_typename ON item (type_id, name);
 
 CREATE INDEX idx_item_relation_type_rhs ON item_relation (type_id, rhs);
 
