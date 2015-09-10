@@ -20,6 +20,7 @@ CREATE TABLE item_relation (
   lhs               INTEGER NOT NULL,
   rhs               INTEGER NOT NULL,
   type_id           INTEGER NOT NULL,
+  metadata          BINARY,
   CONSTRAINT pk_item_relation PRIMARY KEY (lhs, rhs, type_id),
   CONSTRAINT fk_item_relation_lhs FOREIGN KEY (lhs) REFERENCES item(id) ON DELETE CASCADE,
   CONSTRAINT fk_item_relation_rhs FOREIGN KEY (rhs) REFERENCES item(id) ON DELETE CASCADE,
@@ -32,7 +33,7 @@ CREATE TABLE item_profile (
   date_created      DATETIME NOT NULL,
   date_updated      DATETIME NOT NULL,
   flags             INTEGER NOT NULL,
-  metadata          BINARY NOT NULL,
+  metadata          BINARY,
   CONSTRAINT pk_item_profile PRIMARY KEY (item_id),
   CONSTRAINT fk_item_profile FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
 );

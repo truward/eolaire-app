@@ -2,7 +2,7 @@ package com.truward.orion.eolaire.server;
 
 import com.truward.orion.eolaire.model.EolaireRestService;
 import com.truward.orion.eolaire.server.controller.EolaireRestController;
-import com.truward.orion.eolaire.server.logic.EolaireService;
+import com.truward.orion.eolaire.server.logic.EolaireItemService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +12,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.List;
 
-import static com.truward.orion.eolaire.model.EolaireModel.*;
+import static com.truward.orion.eolaire.model.EolaireModel.EntityType;
+import static com.truward.orion.eolaire.model.EolaireModel.GetAllEntityTypesRequest;
+import static com.truward.orion.eolaire.model.EolaireModel.GetAllEntityTypesResponse;
+import static com.truward.orion.eolaire.model.EolaireModel.GetItemByRelationRequest;
+import static com.truward.orion.eolaire.model.EolaireModel.GetItemByRelationResponse;
+import static com.truward.orion.eolaire.model.EolaireModel.GetItemByTypeRequest;
+import static com.truward.orion.eolaire.model.EolaireModel.GetItemByTypeResponse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -24,13 +30,13 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class EolaireRestControllerTest {
-  @Mock EolaireService.Contract eolaireServiceMock;
+  @Mock EolaireItemService itemServiceMock;
 
   EolaireRestService controller;
 
   @Before
   public void init() {
-    controller = new EolaireRestController(eolaireServiceMock);
+    controller = new EolaireRestController(itemServiceMock);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -68,12 +74,12 @@ public final class EolaireRestControllerTest {
     final EntityType entityType1 = EntityType.newBuilder().setId(ids[0]).setName(name).build();
     final List<EntityType> typeList1 = Collections.singletonList(entityType1);
 
-    when(eolaireServiceMock.getEntityTypesOrderedById(null, limit)).thenReturn(typeList1);
+    when(itemServiceMock.getEntityTypesOrderedById(null, limit)).thenReturn(typeList1);
 
     final int limit2 = 2;
     final EntityType entityType2 = EntityType.newBuilder().setId(ids[1]).setName(name).build();
     final List<EntityType> typeList2 = Collections.singletonList(entityType2);
-    when(eolaireServiceMock.getEntityTypesOrderedById(ids[0], limit2)).thenReturn(typeList2);
+    when(itemServiceMock.getEntityTypesOrderedById(ids[0], limit2)).thenReturn(typeList2);
 
     // When:
     GetAllEntityTypesResponse response =  controller.getAllEntities(GetAllEntityTypesRequest.newBuilder()

@@ -3,7 +3,7 @@ package com.truward.orion.eolaire.server.controller;
 import com.truward.brikar.server.controller.AbstractRestController;
 import com.truward.orion.eolaire.model.EolaireModel;
 import com.truward.orion.eolaire.model.EolaireRestService;
-import com.truward.orion.eolaire.server.logic.EolaireService;
+import com.truward.orion.eolaire.server.logic.EolaireItemService;
 import com.truward.orion.eolaire.server.util.ListQueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,30 +23,30 @@ import java.util.Objects;
 @Controller
 @RequestMapping("/rest/eolaire")
 public final class EolaireRestController extends AbstractRestController implements EolaireRestService {
-  private final EolaireService.Contract eolaireService;
+  private final EolaireItemService itemService;
 
   @Autowired
-  public EolaireRestController(EolaireService.Contract eolaireService) {
-    this.eolaireService = Objects.requireNonNull(eolaireService);
+  public EolaireRestController(EolaireItemService itemService) {
+    this.itemService = Objects.requireNonNull(itemService);
   }
 
   @Override
   public EolaireModel.Item getItemById(@PathVariable("id") long id) {
-    return eolaireService.getItemById(id);
+    return itemService.getItemById(id);
   }
 
   @Override
   public EolaireModel.GetItemsResponse getItemsByIds(@RequestBody EolaireModel.GetItemsRequest request) {
     final EolaireModel.GetItemsResponse.Builder builder = EolaireModel.GetItemsResponse.newBuilder();
     for (final long id : request.getItemIdsList()) {
-      builder.addItems(eolaireService.getItemById(id));
+      builder.addItems(itemService.getItemById(id));
     }
     return builder.build();
   }
 
   @Override
   public EolaireModel.GetItemProfileResponse getItemProfile(@PathVariable("id") long id) {
-    final List<EolaireModel.ItemProfile> profiles = eolaireService.getItemProfile(id); // should contain 0 or 1 entry
+    final List<EolaireModel.ItemProfile> profiles = itemService.getItemProfile(id); // should contain 0 or 1 entry
 
     final EolaireModel.GetItemProfileResponse.Builder builder = EolaireModel.GetItemProfileResponse.newBuilder();
 
@@ -62,7 +62,7 @@ public final class EolaireRestController extends AbstractRestController implemen
   public EolaireModel.GetEntityTypeResponse getEntityTypeByName(@RequestParam("name") String name) {
     final EolaireModel.GetEntityTypeResponse.Builder builder = EolaireModel.GetEntityTypeResponse.newBuilder();
 
-    final List<EolaireModel.EntityType> types = eolaireService.getEntityTypeByName(name);
+    final List<EolaireModel.EntityType> types = itemService.getEntityTypeByName(name);
     if (!types.isEmpty()) {
       assert types.size() == 1;
       builder.setType(types.get(0));
@@ -88,7 +88,7 @@ public final class EolaireRestController extends AbstractRestController implemen
     }
 
     // fetch result list
-    final List<EolaireModel.EntityType> entityTypes = eolaireService.getEntityTypesOrderedById(startEntityId, limit);
+    final List<EolaireModel.EntityType> entityTypes = itemService.getEntityTypesOrderedById(startEntityId, limit);
     builder.addAllTypes(entityTypes);
     if (entityTypes.size() == limit) {
       builder.setOffsetToken(ListQueryUtil.toOffsetToken(entityTypes.get(limit - 1).getId()));
@@ -114,7 +114,7 @@ public final class EolaireRestController extends AbstractRestController implemen
     final Long startEntityId = request.hasOffsetToken() ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
 
     // fetch result list
-    final List<Long> itemIds = eolaireService.getItemIdsByType(request.getItemTypeId(), startEntityId, limit);
+    final List<Long> itemIds = itemService.getItemIdsByType(request.getItemTypeId(), startEntityId, limit);
     builder.addAllItemIds(itemIds);
     if (itemIds.size() == limit) {
       builder.setOffsetToken(ListQueryUtil.toOffsetToken(itemIds.get(limit - 1)));
@@ -142,7 +142,7 @@ public final class EolaireRestController extends AbstractRestController implemen
     final Long relatedItemTypeId = request.hasRelatedItemTypeId() ? request.getRelatedItemTypeId() : null;
 
     // fetch result list
-    final List<Long> itemIds = eolaireService.getItemIdsByRelation(request.getItemId(), relationTypeId,
+    final List<Long> itemIds = itemService.getItemIdsByRelation(request.getItemId(), relationTypeId,
         relatedItemTypeId, startEntityId, limit);
 
     builder.addAllItemIds(itemIds);
