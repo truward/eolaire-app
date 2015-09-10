@@ -33,4 +33,7 @@ public interface EolaireItemService {
                                   @Nullable Long relatedItemTypeId,
                                   @Nullable Long startEntityId,
                                   int limit);
+
+  @Nonnull
+  List<EolaireModel.ItemRelation> getItemRelations(long itemId);
 }

@@ -86,9 +86,28 @@ public final class DefaultEolaireItemService implements EolaireItemService {
         limit);
   }
 
+  @Nonnull
+  @Override
+  public List<EolaireModel.ItemRelation> getItemRelations(long itemId) {
+    return db.query("SELECT rhs, type_id, metadata FROM item_relation WHERE lhs=? ORDER BY rhs",
+        new ItemRelationRowMapper(), itemId);
+  }
+
   //
   // Mappers
   //
+
+  private static final class ItemRelationRowMapper implements RowMapper<EolaireModel.ItemRelation> {
+
+    @Override
+    public EolaireModel.ItemRelation mapRow(ResultSet rs, int i) throws SQLException {
+      return EolaireModel.ItemRelation.newBuilder()
+          .setTargetItemId(rs.getLong("rhs"))
+          .setRelationTypeId(rs.getLong("type_id"))
+          .setMetadata(getMetadata(rs, "metadata"))
+          .build();
+    }
+  }
 
   private static final class EntityTypeRowMapper implements RowMapper<EolaireModel.EntityType> {
 

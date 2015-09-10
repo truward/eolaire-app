@@ -117,6 +117,16 @@ public final class EolaireItemServiceTest {
     assertEquals(Collections.singletonList(1100L), ids);
   }
 
+  @Test
+  public void shouldGetRelations() {
+    final List<EolaireModel.ItemRelation> relations = itemService.getItemRelations(1200L);
+    assertEquals(Collections.singletonList(EolaireModel.ItemRelation.newBuilder()
+        .setRelationTypeId(7)
+        .setTargetItemId(1100)
+        .setMetadata(EolaireModel.Metadata.newBuilder().build())
+        .build()), relations);
+  }
+
   //
   // Private
   //

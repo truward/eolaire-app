@@ -70,7 +70,7 @@
       <dependency>
         <groupId>com.truward.orion</groupId>
         <artifactId>eolaire-model</artifactId>
-        <version>1.0.0</version>
+        <version>${eolaire-client.version}</version>
       </dependency>
 
       <!-- Brikar -->
