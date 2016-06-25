@@ -12,16 +12,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.List;
 
-import static com.truward.orion.eolaire.model.EolaireModel.EntityType;
-import static com.truward.orion.eolaire.model.EolaireModel.GetAllEntityTypesRequest;
-import static com.truward.orion.eolaire.model.EolaireModel.GetAllEntityTypesResponse;
-import static com.truward.orion.eolaire.model.EolaireModel.GetItemByRelationRequest;
-import static com.truward.orion.eolaire.model.EolaireModel.GetItemByRelationResponse;
-import static com.truward.orion.eolaire.model.EolaireModel.GetItemByTypeRequest;
-import static com.truward.orion.eolaire.model.EolaireModel.GetItemByTypeResponse;
+import static com.truward.orion.eolaire.model.EolaireModel.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +53,7 @@ public final class EolaireRestControllerTest {
         .setLimit(limit).build());
 
     // Then:
-    assertFalse(response.hasOffsetToken());
+    assertEquals("", response.getOffsetToken());
     assertEquals(0, response.getTypesCount());
   }
 
@@ -86,12 +78,12 @@ public final class EolaireRestControllerTest {
         .setLimit(limit).build());
 
     // Then:
-    assertTrue(response.hasOffsetToken());
+    assertEquals("64", response.getOffsetToken());
     assertEquals(typeList1, response.getTypesList());
 
     response = controller.getAllEntities(GetAllEntityTypesRequest.newBuilder()
         .setOffsetToken(response.getOffsetToken()).setLimit(limit2).build());
-    assertFalse(response.hasOffsetToken());
+    assertEquals("", response.getOffsetToken());
     assertEquals(typeList2, response.getTypesList());
   }
 
@@ -105,7 +97,7 @@ public final class EolaireRestControllerTest {
         .setItemTypeId(1L).setLimit(limit).build());
 
     // Then:
-    assertFalse(response.hasOffsetToken());
+    assertEquals("", response.getOffsetToken());
     assertEquals(0, response.getItemIdsCount());
   }
 
@@ -119,7 +111,7 @@ public final class EolaireRestControllerTest {
         .setItemId(1L).setLimit(limit).build());
 
     // Then:
-    assertFalse(response.hasOffsetToken());
+    assertEquals("", response.getOffsetToken());
     assertEquals(0, response.getItemIdsCount());
   }
 }

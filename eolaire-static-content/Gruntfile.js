@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
   function target(path) {
-    return 'target/release/eolaireService/web/' + path;
+    return 'target/release/eolaireService/web/static/' + path;
   }
 
   function prepareSkeleton() {

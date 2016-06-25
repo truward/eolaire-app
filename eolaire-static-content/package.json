@@ -1,6 +1,6 @@
 {
-  "name": "eolaire-static-content",
-  "version": "1.0.0",
+  "private": true,
+
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
@@ -19,6 +19,7 @@
     "react": "^0.13.0",
     "grunt-react": "^0.12.0"
   },
+
   "scripts": {
     "test": "jest"
   }

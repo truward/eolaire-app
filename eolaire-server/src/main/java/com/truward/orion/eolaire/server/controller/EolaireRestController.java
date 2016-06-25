@@ -7,6 +7,7 @@ import com.truward.orion.eolaire.server.logic.EolaireItemService;
 import com.truward.orion.eolaire.server.util.ListQueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -76,12 +77,13 @@ public final class EolaireRestController extends AbstractRestController implemen
     final int limit = ListQueryUtil.checkLimit(request.getLimit());
 
     // convert offset token
-    final Long startEntityId = request.hasOffsetToken() ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
+    final boolean hasOffsetToken = StringUtils.hasLength(request.getOffsetToken());
+    final Long startEntityId = hasOffsetToken ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
 
     // prepare response builder
     final EolaireModel.GetAllEntityTypesResponse.Builder builder = EolaireModel.GetAllEntityTypesResponse.newBuilder();
     if (limit == 0) {
-      if (request.hasOffsetToken()) {
+      if (hasOffsetToken) {
         builder.setOffsetToken(request.getOffsetToken());
       }
       return builder.build();
@@ -100,18 +102,19 @@ public final class EolaireRestController extends AbstractRestController implemen
   @Override
   public EolaireModel.GetItemByTypeResponse getItemByType(@RequestBody EolaireModel.GetItemByTypeRequest request) {
     final int limit = ListQueryUtil.checkLimit(request.getLimit());
+    final boolean hasOffsetToken = StringUtils.hasLength(request.getOffsetToken());
 
     // prepare response
     final EolaireModel.GetItemByTypeResponse.Builder builder = EolaireModel.GetItemByTypeResponse.newBuilder();
     if (limit == 0) {
-      if (request.hasOffsetToken()) {
+      if (hasOffsetToken) {
         builder.setOffsetToken(request.getOffsetToken());
       }
       return builder.build();
     }
 
     // convert offset token
-    final Long startEntityId = request.hasOffsetToken() ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
+    final Long startEntityId = hasOffsetToken ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
 
     // fetch result list
     final List<Long> itemIds = itemService.getItemIdsByType(request.getItemTypeId(), startEntityId, limit);
@@ -126,20 +129,21 @@ public final class EolaireRestController extends AbstractRestController implemen
   @Override
   public EolaireModel.GetItemByRelationResponse getItemByRelation(@RequestBody EolaireModel.GetItemByRelationRequest request) {
     final int limit = ListQueryUtil.checkLimit(request.getLimit());
+    final boolean hasOffsetToken = StringUtils.hasLength(request.getOffsetToken());
 
     // prepare response
     final EolaireModel.GetItemByRelationResponse.Builder builder = EolaireModel.GetItemByRelationResponse.newBuilder();
     if (limit == 0) {
-      if (request.hasOffsetToken()) {
+      if (hasOffsetToken) {
         builder.setOffsetToken(request.getOffsetToken());
       }
       return builder.build();
     }
 
     // convert offset token
-    final Long startEntityId = request.hasOffsetToken() ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
-    final Long relationTypeId = request.hasRelationTypeId() ? request.getRelationTypeId() : null;
-    final Long relatedItemTypeId = request.hasRelatedItemTypeId() ? request.getRelatedItemTypeId() : null;
+    final Long startEntityId = hasOffsetToken ? ListQueryUtil.longFromOffsetToken(request.getOffsetToken()) : null;
+    final Long relationTypeId = request.getRelationTypeId() != 0 ? request.getRelationTypeId() : null;
+    final Long relatedItemTypeId = request.getRelatedItemTypeId() != 0 ? request.getRelatedItemTypeId() : null;
 
     // fetch result list
     final List<Long> itemIds = itemService.getItemIdsByRelation(request.getItemId(), relationTypeId,

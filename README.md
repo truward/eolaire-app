@@ -3,19 +3,8 @@
 
 ### Launch in Dev Mode
 
-Create a property file somewhere in your home directory, e.g. ``/home/user/eolaire-service.properties``:
-
-```
-# Make shutdown much faster, server will wait 100 milliseconds before stopping serving
-# pending connections and shutting down
-brikar.settings.gracefulShutdownMillis=100
-
-# Turn off basic auth
-brikar.dev.disableSecurity=true
-
-# Uncomment to also fetch static content directly from your build folder
-#brikar.dev.overrideStaticPath=/File_path_to/eolaire-app/eolaire-static-content/target/release/eolaireService/web
-```
+(Optional) Create a property file somewhere in your home directory, e.g. ``/home/user/eolaire-service.properties``.
+See ``core.properties`` for sample contents.
 
 Then add VM property, e.g.: ``-Dbrikar.settings.path=file:/home/user/eolaire-service.properties``.
 
